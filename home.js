@@ -62,6 +62,7 @@
 
   /** Shelf apps in this order when installed, like the Android app: key, LG app id, name on the TV, brand gradient. */
   var SHELF = [
+    ['framextv', /framextv/, /framextv/i, ['#8B5CF6', '#3B0764']],
     ['netflix', /^netflix$/, /netflix/i, ['#0A0A0A', '#000000']],
     ['youtube', /youtube/, /^youtube$/i, ['#1C1C1E', '#09090A']],
     ['prime', /^amazon$/, /prime video|amazon/i, ['#2AA8FF', '#0A68D4']],
@@ -75,7 +76,7 @@
     ['globoplay', /globoplay/, /globoplay/i, ['#FF8A1F', '#FF2D5A']],
     ['spotify', /spotify/, /spotify/i, ['#1DB954', '#0F7A36']]
   ];
-  var MAX_SHELF = 8;
+  var MAX_SHELF = 9;
 
   function shelfKey(app) {
     for (var i = 0; i < SHELF.length; i++) if (SHELF[i][1].test(app.id) || SHELF[i][2].test(app.title)) return SHELF[i];
@@ -126,6 +127,13 @@
         }
       }
       if (!out.length) out = apps.slice(0, MAX_SHELF);
+    }
+    // Keep the FrameXTV shortcut on the shelf, even with a saved shelf order.
+    var fx = null;
+    for (var k = 0; k < apps.length; k++) if (apps[k].id === 'framextv') fx = apps[k];
+    if (fx && out.indexOf(fx) < 0) {
+      if (out.length >= MAX_SHELF) out.pop();
+      out.unshift(fx);
     }
     shelf = out;
     others = apps.filter(function (x) { return shelf.indexOf(x) < 0; });
@@ -308,7 +316,7 @@
       t.style.top = (854 + 126 - th) + 'px';
       t.style.width = tw + 'px';
       t.style.height = th + 'px';
-      face(shelf[i], t, wordFit(shelf[i].title, tw, 30));
+      face(shelf[i], t, wordFit(shelf[i].title, tw, shelf[i].title.length > 7 ? 24 : 30));
       hover(t, Z.SHELF, i);
     }
     st.shelf = Math.min(st.shelf, Math.max(0, n - 1));
